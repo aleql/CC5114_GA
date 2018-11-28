@@ -2,7 +2,6 @@ import unittest
 
 from Generator.Generator import Generator
 
-
 class Test_generator(unittest.TestCase):
 
     def test_binary_genes(self):
