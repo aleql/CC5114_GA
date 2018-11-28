@@ -7,50 +7,39 @@ from Individual.Individual import Individual
 
 class GeneticAlgorithm:
 
-    def __init__(self, expected_sequence, generator, mutation_rate=0.1, population_size=10, iterations=5,
+    def __init__(self, generator, population_size, expected_sequence="", mutation_rate=0.1,
                  rand=random.Random(9001)):
         self.population = []
         self.expected_sequence = expected_sequence
         self.generator = generator
         self.mutation_rate = mutation_rate
         self.population_size = population_size
-        self.iterations = iterations
         self.rand = rand
 
     # Initialize a new population of given size
-    def initialize_population(self, pop_size):
-        for _ in range(pop_size):
+    def initialize_population(self):
+        for _ in range(self.population_size):
             new_individual = Individual(self.generator.generate_sequence())
             self.population.append(new_individual)
 
     # Select an individual from a population given a number of iterations
     def tournament_selection(self):
         best = None
-        for i in range(self.iterations):
-            individual = self.rand.choice(self.population) # self.population[self.rand.randint(0, len(self.population) - 1)]
-            if best is None \
-                    or individual.evaluate_fitness(self.expected_sequence) > best.evaluate_fitness(
-                self.expected_sequence):
+        for i in range(self.population_size):
+            individual = self.rand.choice(self.population)
+            if best is None or individual.score > best.score:
                 best = individual
         return best
-
-    def best_selection(self):
-        for individual in self.population:
-            individual.evaluate_fitness()
-        
 
     # For a chromosome, mutate, changes randomly one gen of the chromosome.
     def mutate(self, chromosome):
         mutation_index = self.rand.randint(0, len(chromosome) - 1)
 
-        # chromosome[mutation_index] = self.generator.generate_single_gen()
+        # Mutate a single random chosen chromosome
+        mutated_chromosome = list(chromosome)
+        mutated_chromosome[mutation_index] = self.generator.generate_single_gen()
+        return ''.join(mutated_chromosome)
 
-        text = chromosome
-        new = list(text)
-        new[mutation_index] = self.generator.generate_single_gen()
-        new = ''.join(new)
-
-        return new
 
     # Produce a new individual given two parent indivuals,
     # The new inidivual is mutated given a mutation_rate
@@ -58,7 +47,7 @@ class GeneticAlgorithm:
 
         # Create new gen
         mixing_point = self.rand.randint(0, len(individual1.chromosome))
-        new_chromosome = individual1.chromosome[mixing_point:] + individual2.chromosome[:mixing_point]
+        new_chromosome = individual2.chromosome[:mixing_point] + individual1.chromosome[mixing_point:]
 
         # Mutate based of mutation_rate
         if self.mutation_rate > self.rand.random():
@@ -70,6 +59,14 @@ class GeneticAlgorithm:
     # Generate a new population in a round robin permutation
     def generate_population(self, mating_pool):
         new_generation = []
+
+        # Border case, only one individual for reproduction
+        if len(mating_pool) == 1:
+            while len(new_generation) < self.population_size:
+                new_generation.append(self.reproduce(mating_pool[0], mating_pool[0]))
+            return new_generation
+
+        # More than one inividual
         cycle_combinations = itertools.cycle(list(itertools.combinations(mating_pool, 2)))
         while len(new_generation) < self.population_size:
             mating_individuals = next(cycle_combinations)
@@ -80,6 +77,7 @@ class GeneticAlgorithm:
     def new_generation(self):
         # Generate mating pool, size = 1/4 size population
         mating_pool_size = int(self.population_size/4)
+        self.evaluate_population()
         mating_pool = [self.tournament_selection() for _ in range(mating_pool_size)]
 
         # Generate a new population
@@ -87,4 +85,40 @@ class GeneticAlgorithm:
 
         # replace population
         self.population = new_generation
+
+    # Calculates the fitness of each individual of the population
+    def evaluate_population(self):
+        for individual in self.population:
+            individual.evaluate_fitness(self.expected_sequence)
+
+    # Solution is found when the population is the same generetaion count times
+    def genetic_algorithm(self, generation_count=3):
+
+        default = generation_count
+
+        # Check if all the individuals in the list have the same chromosome
+        def all_same(items):
+            return all( i.chromosome == items[0].chromosome for i in items)
+
+        generations = 0
+        while generation_count > 0:
+            self.new_generation()
+
+            pop = ""
+            for i in self.population:
+                pop += str(i.chromosome) + " " # + "/" + str(i.score) + " "
+            print(" Population: " + str(generations) + " / " + pop)
+
+            if all_same(self.population):
+                generation_count -= 1
+            else:
+                generation_count = default
+            generations += 1
+
+        print(generations)
+        return generations, self.population[0].chromosome
+
+
+
+
 
