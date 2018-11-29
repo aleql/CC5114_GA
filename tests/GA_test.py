@@ -1,14 +1,17 @@
 import unittest
 
+from Calculator.Seq_Calculator import Seq_Calculator
 from Generator.Generator import Generator
-from GeneticAlgorithm import GeneticAlgorithm
+from GA.GeneticAlgorithm import GeneticAlgorithm
+
 
 
 class Test_generator(unittest.TestCase):
 
     def test_binary_genetic_algorithm(self):
         self.generator = Generator(['0', '1'], 5)
-        self.GA = GeneticAlgorithm(self.generator, 8, "01010")
+        self.calculator = Seq_Calculator("01010")
+        self.GA = GeneticAlgorithm(self.generator, 8, self.calculator)
         self.GA.initialize_population()
         generations, chromosome = self.GA.genetic_algorithm()
 
@@ -17,7 +20,8 @@ class Test_generator(unittest.TestCase):
 
     def test_character_genetic_algorithm(self):
         self.generator = Generator(list("abcdefghijklmnñopqrstuvwxyz"), 10)
-        self.GA = GeneticAlgorithm(self.generator, 16, "murcielago")
+        self.calculator = Seq_Calculator("murcielago")
+        self.GA = GeneticAlgorithm(self.generator, 16, self.calculator)
         self.GA.initialize_population()
         generations, chromosome = self.GA.genetic_algorithm()
 

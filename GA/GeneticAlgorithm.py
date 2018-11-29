@@ -7,11 +7,11 @@ from Individual.Individual import Individual
 
 class GeneticAlgorithm:
 
-    def __init__(self, generator, population_size, expected_sequence="", mutation_rate=0.1,
+    def __init__(self, generator, population_size, fitness_calculator, mutation_rate=0.1,
                  rand=random.Random(9001)):
         self.population = []
-        self.expected_sequence = expected_sequence
         self.generator = generator
+        self.fitness_calculator = fitness_calculator
         self.mutation_rate = mutation_rate
         self.population_size = population_size
         self.rand = rand
@@ -89,7 +89,7 @@ class GeneticAlgorithm:
     # Calculates the fitness of each individual of the population
     def evaluate_population(self):
         for individual in self.population:
-            individual.evaluate_fitness(self.expected_sequence)
+            individual.evaluate_fitness(self.fitness_calculator)
 
     # Solution is found when the population is the same generetaion count times
     def genetic_algorithm(self, generation_count=3):
@@ -104,10 +104,10 @@ class GeneticAlgorithm:
         while generation_count > 0:
             self.new_generation()
 
-            pop = ""
-            for i in self.population:
-                pop += str(i.chromosome) + " " # + "/" + str(i.score) + " "
-            print(" Population: " + str(generations) + " / " + pop)
+            # pop = ""
+            # for i in self.population:
+            #     pop += str(i.chromosome) + " " # + "/" + str(i.score) + " "
+            # print(" Population: " + str(generations) + " / " + pop)
 
             if all_same(self.population):
                 generation_count -= 1
