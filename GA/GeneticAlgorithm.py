@@ -1,6 +1,9 @@
 import random
 
 import itertools
+from functools import reduce
+
+import numpy as np
 
 from Individual.Individual import Individual
 
@@ -77,7 +80,6 @@ class GeneticAlgorithm:
     def new_generation(self):
         # Generate mating pool, size = 1/4 size population
         mating_pool_size = int(self.population_size/4)
-        self.evaluate_population()
         mating_pool = [self.tournament_selection() for _ in range(mating_pool_size)]
 
         # Generate a new population
@@ -94,19 +96,46 @@ class GeneticAlgorithm:
     # Solution is found when the population is the same generetaion count times
     def genetic_algorithm(self, generation_count=3):
 
-        default = generation_count
-
         # Check if all the individuals in the list have the same chromosome
         def all_same(items):
             return all( i.chromosome == items[0].chromosome for i in items)
 
+        # Obtain population fitness
+        def pop_fitness(population):
+            fitness = list(map(lambda i: i.score, population))
+            return fitness
+
+
+        # Default generation count
+        default = generation_count
+
+        # List for the fitness by generation
+        total_stats = {}
+        total_stats["mean"] = []
+        total_stats["sum"] = []
+        total_stats["std"] = []
+        total_stats["var"] = []
+        # generation_fitness.append(pop_fitness(self.population))
+
+
+        # Algorithm
         generations = 0
         while generation_count > 0:
+
+            # Evaluate population to obtain stats
+            self.evaluate_population()
+            generation_fitness = pop_fitness(self.population)
+            total_stats["mean"].append(np.mean(generation_fitness))
+            total_stats["sum"].append(np.sum(generation_fitness))
+            total_stats["std"].append(np.std(generation_fitness))
+            total_stats["var"].append(np.var(generation_fitness))
+
             self.new_generation()
+
 
             # pop = ""
             # for i in self.population:
-            #     pop += str(i.chromosome) + " " # + "/" + str(i.score) + " "
+            #     pop += str(i.chromosome) + " "  + "/" + str(i.score) + " "
             # print(" Population: " + str(generations) + " / " + pop)
 
             if all_same(self.population):
@@ -114,9 +143,10 @@ class GeneticAlgorithm:
             else:
                 generation_count = default
             generations += 1
+            print(generations)
 
-        print(generations)
-        return generations, self.population[0].chromosome
+
+        return generations, self.population[0].chromosome, total_stats
 
 
 
