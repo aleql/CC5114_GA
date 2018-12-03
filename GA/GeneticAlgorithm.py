@@ -115,6 +115,7 @@ class GeneticAlgorithm:
         total_stats["sum"] = []
         total_stats["std"] = []
         total_stats["var"] = []
+        total_stats["max"] = []
         # generation_fitness.append(pop_fitness(self.population))
 
 
@@ -129,6 +130,7 @@ class GeneticAlgorithm:
             total_stats["sum"].append(np.sum(generation_fitness))
             total_stats["std"].append(np.std(generation_fitness))
             total_stats["var"].append(np.var(generation_fitness))
+            total_stats["max"].append(np.amax(generation_fitness))
 
             self.new_generation()
 
@@ -139,11 +141,13 @@ class GeneticAlgorithm:
             # print(" Population: " + str(generations) + " / " + pop)
 
             if all_same(self.population):
-                generation_count -= 1
+                self.population[0].evaluate_fitness(self.fitness_calculator)
+                if self.population[0].score == len(self.population[0].chromosome):
+                    generation_count -= 1
             else:
                 generation_count = default
             generations += 1
-            print(generations)
+            # print(generations)
 
 
         return generations, self.population[0].chromosome, total_stats

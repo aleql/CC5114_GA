@@ -11,16 +11,17 @@ opti_generator = Generator(list("01"), 24)
 
 population_size = 16
 
+mutation_rate = 0.1
+
 # Calculator
 opti_calculator = Opti_Calculator(f)
 
-GA = OptiGeneticAlgorithm(opti_generator, 12, opti_calculator)
+GA = OptiGeneticAlgorithm(opti_generator, 12, opti_calculator, mutation_rate)
 GA.initialize_population()
 
 generations, chromosome, ga_stats = GA.genetic_algorithm()
 print("Generations: {}".format(generations))
 print("Chromosome: {}".format(chromosome))
-# print("ga_stats: {}".format(ga_stats))
 
 print("Fitness: {}".format(opti_calculator.calculate_fitness(chromosome)))
 
@@ -28,8 +29,9 @@ expected_sequence = list(map(int8, [chromosome[i:i + 8] for i in range(0, len(ch
 print(expected_sequence)
 
 
-lineChart(list(range(generations)), ga_stats["sum"], "Generations", "Total Fitness", "Number of generations vs Total fitness for character string {} \n and population size: {}".format(expected_sequence, population_size))
-lineChart(list(range(generations)), ga_stats["mean"], "Generations", "Mean Fitness", "Number of generations vs Mean fitness for character string {} \n and population size: {}".format(expected_sequence, population_size))
-lineChart(list(range(generations)), ga_stats["std"], "Generations", "Standard deviation Fitness", "Number of generations vs Std Deviation of fitness for character string {} \n and population size: {}".format(expected_sequence, population_size))
-lineChart(list(range(generations)), ga_stats["var"], "Generations", "Var Fitness", "Number of generations vs Variance of fitness for character string {} \n and population size: {}".format(expected_sequence, population_size))
+lineChart(list(range(generations)), ga_stats["sum"], "Generations", "Total Fitness", "Number of generations vs Total fitness for values {} \n and population size: {}".format(expected_sequence, population_size))
+lineChart(list(range(generations)), ga_stats["mean"], "Generations", "Mean Fitness", "Number of generations vs Mean fitness for values {} \n and population size: {}".format(expected_sequence, population_size))
+lineChart(list(range(generations)), ga_stats["std"], "Generations", "Standard deviation Fitness", "Number of generations vs Std Deviation of fitness for values {} \n and population size: {}".format(expected_sequence, population_size))
+lineChart(list(range(generations)), ga_stats["var"], "Generations", "Var Fitness", "Number of generations vs Variance of fitness for values {} \n and population size: {}".format(expected_sequence, population_size))
+lineChart(list(range(generations)), ga_stats["max"], "Generations", "Var Fitness", "Number of generations vs Highest fitness for values {} \n and population size: {}".format(expected_sequence, population_size))
 
